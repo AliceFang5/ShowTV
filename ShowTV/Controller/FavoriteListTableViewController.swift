@@ -14,8 +14,10 @@ class FavoriteListTableViewController: UITableViewController {
         super.viewDidLoad()
         tableView.register(UINib(nibName: K.tvListCellNibName, bundle: nil), forCellReuseIdentifier: K.tvListCellIdentifier)
         title = "Favorites"
+        
+        NotificationCenter.default.addObserver(tableView, selector: #selector(UITableView.reloadData), name: TvController.favoritesIdNotification, object: nil)
 
-        TvController.shared.fetchTvShows(withApi: K.popularAPI, withSearch: "") { (items) in
+        TvController.shared.fetchTvShows(withApi: K.popularAPI) { (items) in
             if let items = items{
                 DispatchQueue.main.async {
                     self.tvList = items

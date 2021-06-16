@@ -10,10 +10,10 @@ import UIKit
 class TvListTableViewController: UITableViewController, UISearchResultsUpdating {
     
     func updateSearchResults(for searchController: UISearchController) {
-        print(#function)
         let searchString = searchController.searchBar.text!
-        print(searchString)
-        TvController.shared.fetchTvShows(withApi: K.searchAPI, withSearch: searchString) { (items) in
+        print("\(#function):\(searchString)")
+        TvController.shared.queries.updateValue(searchString, forKey: "query")
+        TvController.shared.fetchTvShows(withApi: K.searchAPI) { (items) in
             if let items = items{
                 DispatchQueue.main.async {
                     self.tvList = items
@@ -48,7 +48,7 @@ class TvListTableViewController: UITableViewController, UISearchResultsUpdating 
             break
         }
 
-        TvController.shared.fetchTvShows(withApi: apiString, withSearch: "") { (items) in
+        TvController.shared.fetchTvShows(withApi: apiString) { (items) in
             if let items = items{
                 DispatchQueue.main.async {
                     self.tvList = items

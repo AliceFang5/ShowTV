@@ -9,8 +9,16 @@ import UIKit
 
 class TvController{
     static let shared = TvController()
+    static let favoritesIdNotification = Notification.Name("TvController.favoritesIdUpdate")
     let baseURL = URL(string: "https://api.themoviedb.org/3/")!
     let imageURL = URL(string: "https://image.tmdb.org/t/p/w342")!
+    var favoritesId = [Int](){
+        didSet{
+            NotificationCenter.default.post(name: TvController.favoritesIdNotification, object: nil)
+            print(favoritesId)
+        }
+    }
+    
     var queries = [
         "api_key":"",
         "language":"en-US",
@@ -18,19 +26,18 @@ class TvController{
         "query":""
     ]
     
-    func fetchTvShows(withApi apiString:String, withSearch searchString:String, completion: @escaping ([TvItem]?) -> Void){
+    func fetchTvShows(withApi apiString:String, completion: @escaping ([TvItem]?) -> Void){
         let initialURL = baseURL.appendingPathComponent(apiString)
         var component = URLComponents(url: initialURL, resolvingAgainstBaseURL: true)!
-        queries.updateValue(searchString, forKey: "query")
         component.queryItems = queries.map{
             URLQueryItem(name: $0.key, value: $0.value)
         }
         let tvShowsURL = component.url!
-        print(tvShowsURL)
+//        print(tvShowsURL)
         let task = URLSession.shared.dataTask(with: tvShowsURL) { (data, response, error) in
             let jsonDecoder = JSONDecoder()
             if let data = data, let tvShowsLists = try? jsonDecoder.decode(TvShowsLists.self, from: data){
-                print(tvShowsLists)
+//                print(tvShowsLists)
                 completion(tvShowsLists.results)
             }else{
                 completion(nil)
@@ -46,13 +53,13 @@ class TvController{
             URLQueryItem(name: $0.key, value: $0.value)
         }
         let tvIdURL = component.url!
-        print(tvIdURL)
+//        print(tvIdURL)
         let task = URLSession.shared.dataTask(with: tvIdURL) { (data, response, error) in
             let jsonDecoder = JSONDecoder()
             if let data = data{
                 do{
                     let tvIdDetail = try jsonDecoder.decode(TvIdDetail.self, from: data)
-                    print(tvIdDetail)
+//                    print(tvIdDetail)
                     completion(tvIdDetail)
                 }catch{
                     print(error)
@@ -71,13 +78,13 @@ class TvController{
             URLQueryItem(name: $0.key, value: $0.value)
         }
         let tvVideosURL = component.url!
-        print(tvVideosURL)
+//        print(tvVideosURL)
         let task = URLSession.shared.dataTask(with: tvVideosURL) { (data, response, error) in
             let jsonDecoder = JSONDecoder()
             if let data = data{
                 do{
                     let tvVideos = try jsonDecoder.decode(TvVideos.self, from: data)
-                    print(tvVideos)
+//                    print(tvVideos)
                     completion(tvVideos.results)
                 }catch{
                     print(error)
@@ -91,7 +98,7 @@ class TvController{
     
     func fetchImage(withPath path:String, completion: @escaping (UIImage?) -> Void){
         let pathURL = imageURL.appendingPathComponent(path)
-        print(pathURL)
+//        print(pathURL)
         let task = URLSession.shared.dataTask(with: pathURL) { (data, response, error) in
             if let data = data, let image = UIImage(data: data){
                 completion(image)

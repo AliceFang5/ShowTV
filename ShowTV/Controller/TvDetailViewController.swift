@@ -20,8 +20,8 @@ class TvDetailViewController: UIViewController, SFSafariViewControllerDelegate {
     
     var tvItem:TvItem!
     var tvVideos = [TvVideo]()
-    var btnToggleState = false
     var homepage = ""
+    var favoriteList = [Int]()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -31,6 +31,13 @@ class TvDetailViewController: UIViewController, SFSafariViewControllerDelegate {
         overviewLabel.text = tvItem.overview
         homepageBtn.isEnabled = false
         videoBtn.isEnabled = false
+        
+        //initial favoriteBtn setting
+        if checkFavoriteIndex() != nil{
+            favoriteBtn.setImage(UIImage(systemName: "heart.fill"), for: .normal)
+        }else{
+            favoriteBtn.setImage(UIImage(systemName: "heart"), for: .normal)
+        }
         
         TvController.shared.fetchImage(withPath: tvItem.poster_path ?? "") { (image) in
             guard let image = image else { return }
@@ -67,6 +74,16 @@ class TvDetailViewController: UIViewController, SFSafariViewControllerDelegate {
         
     }
     
+    func checkFavoriteIndex() -> Int?{
+        favoriteList = TvController.shared.favoritesId
+        for (index, id) in favoriteList.enumerated(){
+            if id == tvItem.id{
+                return index
+            }
+        }
+        return nil
+    }
+    
     @IBAction func homepageBtnPressed(_ sender: UIButton) {
         if let url = URL(string: homepage){
             let safari = SFSafariViewController(url: url)
@@ -75,12 +92,16 @@ class TvDetailViewController: UIViewController, SFSafariViewControllerDelegate {
     }
     
     @IBAction func favoriteBtnPressed(_ sender: UIButton) {
-        if btnToggleState{
-            sender.setImage(UIImage(systemName: "heart.fill"), for: .normal)
+        //toogle favoriteBtn
+        if let index = checkFavoriteIndex(){
+            //remove favorite
+            favoriteBtn.setImage(UIImage(systemName: "heart"), for: .normal)
+            TvController.shared.favoritesId.remove(at: index)
         }else{
-            sender.setImage(UIImage(systemName: "heart"), for: .normal)
+            //add favorite
+            favoriteBtn.setImage(UIImage(systemName: "heart.fill"), for: .normal)
+            TvController.shared.favoritesId.append(tvItem.id)
         }
-        btnToggleState = !btnToggleState
     }
     
     //http://youtube.com/watch?v=
