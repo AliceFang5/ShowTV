@@ -1,14 +1,14 @@
 //
-//  TvDetailViewController.swift
+//  FavoriteDetailViewController.swift
 //  ShowTV
 //
-//  Created by 方芸萱 on 2021/6/11.
+//  Created by 方芸萱 on 2021/6/16.
 //
 
 import UIKit
 import SafariServices
 
-class TvDetailViewController: UIViewController, SFSafariViewControllerDelegate {
+class FavoriteDetailViewController: UIViewController, SFSafariViewControllerDelegate {
     @IBOutlet weak var itemImageView: UIImageView!
     @IBOutlet weak var homepageBtn: UIButton!
     @IBOutlet weak var favoriteBtn: UIButton!
@@ -18,28 +18,37 @@ class TvDetailViewController: UIViewController, SFSafariViewControllerDelegate {
     @IBOutlet weak var ratedLabel: UILabel!
     @IBOutlet weak var overviewLabel: UILabel!
     
-    var tvItem:TvItem!
+    var tvIdDetail:TvIdDetail!
     var tvVideos = [TvVideo]()
     var homepage = ""
     var favoriteList = [Int]()
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        title = tvItem.original_name
-        nameLabel.text = tvItem.original_name
-        ratedLabel.text = String(format: "⭐️%.1f", tvItem.vote_average)
-        overviewLabel.text = tvItem.overview
-        homepageBtn.isEnabled = false
+        title = tvIdDetail.original_name
+        nameLabel.text = tvIdDetail.original_name
+        ratedLabel.text = String(format: "⭐️%.1f", tvIdDetail.vote_average)
+        overviewLabel.text = tvIdDetail.overview
+        seasonEpisodeLabel.text = "Seanson \(tvIdDetail.number_of_seasons), Episodes \(tvIdDetail.number_of_episodes)"
+        if tvIdDetail.homepage != nil{
+            homepageBtn.isEnabled = true
+        }else{
+            homepageBtn.isEnabled = false
+        }
         videoBtn.isEnabled = false
         
-        TvController.shared.fetchImage(withPath: tvItem.poster_path ?? "") { (image) in
+        //initial favoriteBtn setting
+        favoriteBtn.setImage(UIImage(systemName: "heart.fill"), for: .normal)
+        favoriteBtn.isEnabled = false
+        
+        TvController.shared.fetchImage(withPath: tvIdDetail.poster_path ?? "") { (image) in
             guard let image = image else { return }
             DispatchQueue.main.async {
                 self.itemImageView.image = image
             }
         }
         
-        TvController.shared.fetchTvId(withId: tvItem.id) { (tvIdDetail) in
+        TvController.shared.fetchTvId(withId: tvIdDetail.id) { (tvIdDetail) in
             if let tvIdDetail = tvIdDetail{
                 if let homepage = tvIdDetail.homepage{
                     self.homepage = homepage
@@ -47,13 +56,10 @@ class TvDetailViewController: UIViewController, SFSafariViewControllerDelegate {
                         self.homepageBtn.isEnabled = true
                     }
                 }
-                DispatchQueue.main.async {
-                    self.seasonEpisodeLabel.text = "Seanson \(tvIdDetail.number_of_seasons), Episodes \(tvIdDetail.number_of_episodes)"
-                }
             }
         }
         
-        TvController.shared.fetchTvVideos(withId: tvItem.id, withSeason: 1) { (tvVideos) in
+        TvController.shared.fetchTvVideos(withId: tvIdDetail.id, withSeason: 1) { (tvVideos) in
             if let tvVideos = tvVideos{
 //                print(tvVideos)
                 if tvVideos.count != 0 {
@@ -66,42 +72,10 @@ class TvDetailViewController: UIViewController, SFSafariViewControllerDelegate {
         }
     }
     
-    override func viewWillAppear(_ animated: Bool) {
-        //initial favoriteBtn setting
-        if checkFavoriteIndex() != nil{
-            favoriteBtn.setImage(UIImage(systemName: "heart.fill"), for: .normal)
-        }else{
-            favoriteBtn.setImage(UIImage(systemName: "heart"), for: .normal)
-        }
-    }
-    
-    func checkFavoriteIndex() -> Int?{
-        favoriteList = TvController.shared.favoritesId
-        for (index, id) in favoriteList.enumerated(){
-            if id == tvItem.id{
-                return index
-            }
-        }
-        return nil
-    }
-    
     @IBAction func homepageBtnPressed(_ sender: UIButton) {
         if let url = URL(string: homepage){
             let safari = SFSafariViewController(url: url)
             present(safari, animated: true, completion: nil)
-        }
-    }
-    
-    @IBAction func favoriteBtnPressed(_ sender: UIButton) {
-        //toogle favoriteBtn
-        if let index = checkFavoriteIndex(){
-            //remove favorite
-            favoriteBtn.setImage(UIImage(systemName: "heart"), for: .normal)
-            TvController.shared.favoritesId.remove(at: index)
-        }else{
-            //add favorite
-            favoriteBtn.setImage(UIImage(systemName: "heart.fill"), for: .normal)
-            TvController.shared.favoritesId.append(tvItem.id)
         }
     }
     
@@ -117,4 +91,5 @@ class TvDetailViewController: UIViewController, SFSafariViewControllerDelegate {
             }
         }
     }
+
 }

@@ -22,4 +22,5 @@ struct K {
     
     static let showTvListSegue = "showTvList"
     static let showTvDetailSegue = "showTvDetail"
+    static let showFavoriteDetailSegue = "showFavoriteDetail"
 }

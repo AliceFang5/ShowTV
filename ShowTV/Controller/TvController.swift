@@ -15,7 +15,6 @@ class TvController{
     var favoritesId = [Int](){
         didSet{
             NotificationCenter.default.post(name: TvController.favoritesIdNotification, object: nil)
-            print(favoritesId)
         }
     }
     

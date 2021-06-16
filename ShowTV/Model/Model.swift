@@ -20,6 +20,12 @@ struct TvItem:Decodable {
 }
 
 struct TvIdDetail:Decodable {
+    let original_name:String
+    let id:Int
+    let overview:String
+    let vote_average:Double
+    let poster_path:String?
+    
     let number_of_seasons:Int
     let number_of_episodes:Int
     let homepage:String?

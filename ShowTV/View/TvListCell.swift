@@ -25,6 +25,7 @@ class TvListCell: UITableViewCell {
 
         // Configure the view for the selected state
     }
+    
     func update(with tvItem:TvItem){
         nameLabel.text = tvItem.original_name
         ratedLabel.text = String(format: "⭐️%.1f", tvItem.vote_average)
@@ -38,4 +39,16 @@ class TvListCell: UITableViewCell {
         }
     }
     
+    func update(with tvDetail:TvIdDetail){
+        nameLabel.text = tvDetail.original_name
+        ratedLabel.text = String(format: "⭐️%.1f", tvDetail.vote_average)
+        overviewLabel.text = tvDetail.overview
+        TvController.shared.fetchImage(withPath: tvDetail.poster_path ?? "") { (image) in
+            guard let image = image else { return }
+            DispatchQueue.main.async {
+                self.itemImageView?.image = image
+                self.setNeedsLayout()
+            }
+        }
+    }
 }
