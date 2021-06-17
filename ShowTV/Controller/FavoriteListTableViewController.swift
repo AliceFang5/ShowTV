@@ -41,6 +41,9 @@ class FavoriteListTableViewController: UITableViewController {
                 }
             }
         }
+        if tvIdDetailList.count == 0{
+            tableView.reloadData()
+        }
     }
 
     // MARK: - Table view data source
